@@ -4,140 +4,108 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.authenticatorapp.model.TotpGenerator
-import com.example.authenticatorapp.viewmodel.MainViewModel
+import com.example.authenticatorapp.model.Account
+import com.example.authenticatorapp.ui.navigation.BottomNavItem
+import com.example.authenticatorapp.ui.screen.AccountsScreen
+import com.example.authenticatorapp.ui.screen.AddScreen
+import com.example.authenticatorapp.ui.screen.SettingsScreen
 import com.example.authenticatorapp.ui.theme.AuthenticatorAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Временные тестовые данные
+        val testAccounts = listOf(
+            Account(
+                id = 1,
+                service = "Google",
+                username = "test@gmail.com",
+                secret = "JBSWY3DPEHPK3PXP"
+            ),
+            Account(
+                id = 2,
+                service = "GitHub",
+                username = "testuser",
+                secret = "JBSWY3DPEHPK3PXP"
+            )
+        )
+
         setContent {
             AuthenticatorAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(
+                        accounts = testAccounts,
+                        onAddAccount = { /* Пока ничего */ },
+                        onDeleteAccount = { /* Пока ничего */ }
+                    )
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel = viewModel()
+    accounts: List<Account>,
+    onAddAccount: (Account) -> Unit,
+    onDeleteAccount: (Account) -> Unit
 ) {
-    val totpState by viewModel.totpState.collectAsState()
+    var selectedTab by remember { mutableStateOf(0) }
+
+    val bottomNavItems = listOf(
+        BottomNavItem.Accounts,
+        BottomNavItem.Add,
+        BottomNavItem.Settings
+    )
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("🔐 Аутентификатор") }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (totpState.secondsRemaining < 5)
-                        MaterialTheme.colorScheme.errorContainer
-                    else
-                        MaterialTheme.colorScheme.primaryContainer
-                ),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 8.dp
-                )
+        bottomBar = {
+            NavigationBar(
+                modifier = Modifier.height(64.dp),
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Код доступа",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = totpState.code,
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 52.sp,
-                        color = if (totpState.secondsRemaining < 5)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.onPrimaryContainer,
-                        letterSpacing = 4.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    LinearProgressIndicator(
-                        progress = totpState.progress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp),
-                        color = if (totpState.secondsRemaining < 5)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "${totpState.secondsRemaining} сек.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (totpState.secondsRemaining < 5)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                bottomNavItems.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title
+                            )
+                        },
+                        label = { Text(item.title) },
+                        alwaysShowLabel = true
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Секрет: JBSWY3DPEHPK3PXP",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Проверь в Google Authenticator\n(QR-код добавим позже)",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (selectedTab) {
+                0 -> AccountsScreen(
+                    accounts = accounts,
+                    onAddAccount = { /* Пока ничего */ },
+                    onDeleteAccount = onDeleteAccount
+                )
+                1 -> AddScreen(
+                    onAddAccount = onAddAccount,
+                    onBack = { selectedTab = 0 }
+                )
+                2 -> SettingsScreen()
+            }
         }
     }
 }

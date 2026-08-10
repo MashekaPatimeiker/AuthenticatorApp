@@ -1,8 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)   // ← здесь kotlin.android, НЕ kotlin.compose
+    alias(libs.plugins.kotlin.android)
 }
-
 android {
     namespace = "com.example.authenticatorapp"
     compileSdk = 34
@@ -43,6 +42,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
+
+    configurations {
+        all {
+            exclude(group = "com.intellij", module = "annotations")
+        }
+    }
 }
 
 dependencies {
@@ -55,7 +60,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
+    implementation("androidx.room:room-runtime:2.6.0")
+    implementation("androidx.room:room-ktx:2.6.0")
+    implementation("androidx.room:room-compiler:2.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("commons-codec:commons-codec:1.16.0")
 
     testImplementation(libs.junit)

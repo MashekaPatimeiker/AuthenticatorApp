@@ -19,7 +19,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Временные тестовые данные
         val testAccounts = listOf(
             Account(
                 id = 1,
@@ -31,6 +30,12 @@ class MainActivity : ComponentActivity() {
                 id = 2,
                 service = "GitHub",
                 username = "testuser",
+                secret = "JBSWY3DPEHPK3PXP"
+            ),
+            Account(
+                id = 3,
+                service = "Telegram",
+                username = "@username",
                 secret = "JBSWY3DPEHPK3PXP"
             )
         )

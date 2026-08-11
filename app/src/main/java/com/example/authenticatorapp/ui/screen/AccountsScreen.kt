@@ -70,7 +70,10 @@ fun AccountsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(accounts) { account ->
-                    val totpResult = TotpGenerator.generate(account.secret)
+                    val totpResult = remember(currentTime) {
+                        TotpGenerator.generate(account.secret)
+                    }
+
                     AccountCard(
                         account = account,
                         totpResult = totpResult,

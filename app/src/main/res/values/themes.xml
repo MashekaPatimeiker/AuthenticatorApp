@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Основная тема приложения -->
     <style name="Theme.AuthenticatorApp" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Тема для Splash Screen -->
+    <style name="Theme.AuthenticatorApp.Splash" parent="Theme.SplashScreen">
+        <!-- Цвет фона -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <!-- ⭐ Цвет фона иконки (для Android 12+) -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_icon_background</item>
+
+        <!-- Длительность анимации (мс) -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+
+        <!-- Тема после Splash -->
+        <item name="postSplashScreenTheme">@style/Theme.AuthenticatorApp</item>
+    </style>
 </resources>

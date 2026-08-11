@@ -8,15 +8,32 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.example.authenticatorapp.model.Account
 import com.example.authenticatorapp.ui.navigation.BottomNavItem
 import com.example.authenticatorapp.ui.screen.AccountsScreen
 import com.example.authenticatorapp.ui.screen.AddScreen
 import com.example.authenticatorapp.ui.screen.SettingsScreen
 import com.example.authenticatorapp.ui.theme.AuthenticatorAppTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
+        var isReady by mutableStateOf(false)
+
+        splashScreen.setKeepOnScreenCondition {
+            !isReady
+        }
+
+        lifecycleScope.launch {
+            delay(800)
+            isReady = true
+        }
+
         super.onCreate(savedInstanceState)
 
         val testAccounts = listOf(

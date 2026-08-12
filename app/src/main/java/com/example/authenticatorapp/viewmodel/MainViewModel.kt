@@ -3,8 +3,8 @@ package com.example.authenticatorapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.authenticatorapp.data.repository.AccountRepository
-import com.example.authenticatorapp.model.Account
-import com.example.authenticatorapp.model.TotpGenerator
+import com.example.authenticatorapp.domain.models.Account
+import com.example.authenticatorapp.domain.models.TotpGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

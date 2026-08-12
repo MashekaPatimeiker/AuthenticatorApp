@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.authenticatorapp.model.Account
+import com.example.authenticatorapp.domain.models.Account
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

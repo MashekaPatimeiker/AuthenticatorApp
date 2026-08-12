@@ -1,8 +1,9 @@
-package com.example.authenticatorapp.model
+package com.example.authenticatorapp.domain.models
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import org.apache.commons.codec.binary.Base32
+import java.nio.ByteBuffer
 
 object TotpGenerator {
     private const val TIME_STEP = 30L
@@ -50,7 +51,7 @@ object TotpGenerator {
     }
 
     private fun longToBytes(value: Long): ByteArray {
-        val buffer = java.nio.ByteBuffer.allocate(8)
+        val buffer = ByteBuffer.allocate(8)
         buffer.putLong(value)
         return buffer.array()
     }

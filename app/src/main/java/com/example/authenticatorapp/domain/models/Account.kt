@@ -1,4 +1,4 @@
-package com.example.authenticatorapp.model
+package com.example.authenticatorapp.domain.models
 
 data class Account(
     val id: Long = 0,

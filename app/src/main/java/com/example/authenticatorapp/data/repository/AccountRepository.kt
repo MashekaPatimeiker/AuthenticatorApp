@@ -2,7 +2,7 @@ package com.example.authenticatorapp.data.repository
 
 import com.example.authenticatorapp.data.database.AccountDao
 import com.example.authenticatorapp.data.database.AccountEntity
-import com.example.authenticatorapp.model.Account
+import com.example.authenticatorapp.domain.models.Account
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

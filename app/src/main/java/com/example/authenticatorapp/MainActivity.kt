@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.example.authenticatorapp.data.local.AccountStorage
 import com.example.authenticatorapp.domain.models.Account
-import com.example.authenticatorapp.domain.totp.SecretGenerator
 import com.example.authenticatorapp.ui.navigation.BottomNavItem
 import com.example.authenticatorapp.ui.screen.AccountsScreen
 import com.example.authenticatorapp.ui.screen.AddScreen
@@ -22,15 +22,20 @@ import com.example.authenticatorapp.ui.screen.SettingsScreen
 import com.example.authenticatorapp.ui.theme.AuthenticatorAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
+import androidx.compose.ui.Alignment
 class MainActivity : ComponentActivity() {
+
+    private lateinit var accountStorage: AccountStorage
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         var isReady by mutableStateOf(false)
         splashScreen.setKeepOnScreenCondition { !isReady }
 
+        accountStorage = AccountStorage(this)
+
         lifecycleScope.launch {
-            delay(800)
+            delay(500)
             isReady = true
         }
 
@@ -42,48 +47,57 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var accounts by remember {
-                        mutableStateOf(
-                            listOf(
-                                Account(
-                                    id = 1,
-                                    service = "Google",
-                                    username = "test@gmail.com",
-                                    secret = SecretGenerator.generateSecret()
-                                ),
-                                Account(
-                                    id = 2,
-                                    service = "GitHub",
-                                    username = "testuser",
-                                    secret = SecretGenerator.generateSecret()
-                                ),
-                                Account(
-                                    id = 3,
-                                    service = "Telegram",
-                                    username = "@username",
-                                    secret = SecretGenerator.generateSecret()
-                                )
-                            )
-                        )
-                    }
-
-                    fun addAccount(account: Account) {
-                        accounts = accounts + account.copy(
-                            id = accounts.maxOfOrNull { it.id }?.plus(1) ?: 1
-                        )
-                    }
-
-                    fun deleteAccount(account: Account) {
-                        accounts = accounts.filter { it.id != account.id }
-                    }
-
-                    MainScreen(
-                        accounts = accounts,
-                        onAddAccount = { addAccount(it) },
-                        onDeleteAccount = { deleteAccount(it) }
-                    )
+                    AuthenticatorApp()
                 }
             }
+        }
+    }
+
+    @Composable
+    fun AuthenticatorApp() {
+        var accounts by remember { mutableStateOf<List<Account>>(emptyList()) }
+        var isLoading by remember { mutableStateOf(true) }
+
+        // Загружаем аккаунты из DataStore
+        LaunchedEffect(Unit) {
+            accountStorage.getAccounts().collect { loadedAccounts ->
+                accounts = loadedAccounts
+                isLoading = false
+            }
+        }
+
+        fun addAccount(account: Account) {
+            val newAccount = account.copy(
+                id = accounts.maxOfOrNull { it.id }?.plus(1) ?: 1
+            )
+            val newList = accounts + newAccount
+            accounts = newList
+            lifecycleScope.launch {
+                accountStorage.saveAccounts(newList)
+            }
+        }
+
+        fun deleteAccount(account: Account) {
+            val newList = accounts.filter { it.id != account.id }
+            accounts = newList
+            lifecycleScope.launch {
+                accountStorage.saveAccounts(newList)
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            MainScreen(
+                accounts = accounts,
+                onAddAccount = { addAccount(it) },
+                onDeleteAccount = { deleteAccount(it) }
+            )
         }
     }
 }
@@ -173,7 +187,7 @@ fun MainScreen(
                     when (tabIndex) {
                         0 -> AccountsScreen(
                             accounts = accounts,
-                            onAddAccount = { /* Пока ничего */ },
+                            onAddAccount = { selectedTab = 1 },
                             onDeleteAccount = onDeleteAccount
                         )
                         1 -> AddScreen(
@@ -188,7 +202,6 @@ fun MainScreen(
         }
     }
 }
-
 
 private fun parseOtpAuthUri(uri: String): Account? {
     try {

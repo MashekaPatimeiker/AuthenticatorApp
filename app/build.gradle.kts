@@ -31,6 +31,16 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
+
+    // Убираем предупреждение о 16KB (опционально)
+    packagingOptions {
+        resources {
+            excludes += listOf(
+                "**/libbarhopper_v3.so",
+                "**/libimage_processing_util_jni.so"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -47,7 +57,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.animation:animation")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
@@ -55,14 +64,23 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // ✅ Ktor Client
+    // TOTP
+    implementation("commons-codec:commons-codec:1.16.0")
+
+    // QR-сканер
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("androidx.camera:camera-camera2:1.2.3")
+    implementation("androidx.camera:camera-lifecycle:1.2.3")
+    implementation("androidx.camera:camera-view:1.2.3")
+
+    // ❌ Удали эту строку:
+    // implementation(libs.firebase.crashlytics.buildtools)
+
+    // Ktor
     implementation("io.ktor:ktor-client-core:2.3.7")
     implementation("io.ktor:ktor-client-android:2.3.7")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-
-    // TOTP
-    implementation("commons-codec:commons-codec:1.16.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

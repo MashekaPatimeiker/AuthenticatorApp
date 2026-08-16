@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.authenticatorapp.data.network.ApiService
 import com.example.authenticatorapp.data.repository.AccountRepository
 import com.example.authenticatorapp.domain.models.Account
-import com.example.authenticatorapp.domain.models.TotpGenerator
+import com.example.authenticatorapp.domain.totp.TotpGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

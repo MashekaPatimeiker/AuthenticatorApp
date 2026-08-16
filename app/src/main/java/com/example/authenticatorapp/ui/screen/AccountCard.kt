@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authenticatorapp.domain.models.Account
-import com.example.authenticatorapp.domain.models.TotpGenerator
+import com.example.authenticatorapp.domain.totp.TotpGenerator
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

@@ -1,9 +1,9 @@
-package com.example.authenticatorapp.domain.models
+package com.example.authenticatorapp.domain.totp
 
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
 import org.apache.commons.codec.binary.Base32
 import java.nio.ByteBuffer
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 object TotpGenerator {
     private const val TIME_STEP = 30L

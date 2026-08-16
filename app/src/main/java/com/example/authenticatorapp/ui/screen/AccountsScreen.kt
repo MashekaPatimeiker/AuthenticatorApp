@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.authenticatorapp.domain.models.Account
-import com.example.authenticatorapp.domain.models.TotpGenerator
+import com.example.authenticatorapp.domain.totp.TotpGenerator
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,6 +60,11 @@ fun AccountsScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
+                    text = "🔐",
+                    fontSize = MaterialTheme.typography.displayLarge.fontSize
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
                     text = "Нет аккаунтов",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface
@@ -78,9 +83,12 @@ fun AccountsScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(accounts) { account ->
+                items(
+                    items = accounts,
+                    key = { it.id } // ← важно для правильного обновления
+                ) { account ->
                     val totpResult = remember(currentTime) {
-                        TotpGenerator.generate(account.secret)
+                        com.example.authenticatorapp.domain.totp.TotpGenerator.generate(account.secret)
                     }
 
                     AccountCard(

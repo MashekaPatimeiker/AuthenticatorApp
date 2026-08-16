@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +26,14 @@ fun AccountsScreen(
     onDeleteAccount: (Account) -> Unit
 ) {
     var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    // Состояние для диалога удаления
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var accountToDelete by remember { mutableStateOf<Account?>(null) }
+
+    // Состояние для диалога информации
+    var showInfoDialog by remember { mutableStateOf(false) }
+    var accountInfo by remember { mutableStateOf<Account?>(null) }
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -97,19 +104,28 @@ fun AccountsScreen(
                             .pointerInput(Unit) {
                                 detectHorizontalDragGestures(
                                     onDragEnd = {
-                                        if (abs(offsetX) > maxSwipeDistance / 2) {
-                                            onDeleteAccount(account)
+                                        when {
+                                            // Свайп влево (удаление)
+                                            offsetX < -maxSwipeDistance / 2 -> {
+                                                accountToDelete = account
+                                                showDeleteDialog = true
+                                            }
+                                            // Свайп вправо (информация)
+                                            offsetX > maxSwipeDistance / 2 -> {
+                                                accountInfo = account
+                                                showInfoDialog = true
+                                            }
                                         }
                                         offsetX = 0f
                                     },
                                     onDragCancel = { offsetX = 0f },
                                     onHorizontalDrag = { _, dragAmount ->
-                                        offsetX = (offsetX + dragAmount).coerceIn(-maxSwipeDistance, 0f)
+                                        offsetX = (offsetX + dragAmount).coerceIn(-maxSwipeDistance, maxSwipeDistance)
                                     }
                                 )
                             }
                     ) {
-                        // Фон для свайпа (кнопка удаления)
+                        // 👈 Левый фон (удаление) — виден при свайпе влево
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -120,7 +136,7 @@ fun AccountsScreen(
                                     .fillMaxHeight()
                                     .padding(horizontal = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.Start
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
@@ -131,6 +147,32 @@ fun AccountsScreen(
                                 Text(
                                     "Удалить",
                                     color = MaterialTheme.colorScheme.onError
+                                )
+                            }
+                        }
+
+                        // 👉 Правый фон (информация) — виден при свайпе вправо
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text(
+                                    "Информация",
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    Icons.Default.Info,
+                                    "Информация",
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
                         }
@@ -149,12 +191,110 @@ fun AccountsScreen(
                                 account = account,
                                 totpResult = totpResult,
                                 onCopy = { /* Копирование */ },
-                                onDelete = { onDeleteAccount(account) }
+                                onDelete = {
+                                    accountToDelete = account
+                                    showDeleteDialog = true
+                                }
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    // ========== ДИАЛОГ УДАЛЕНИЯ ==========
+    if (showDeleteDialog && accountToDelete != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                accountToDelete = null
+            },
+            title = {
+                Text("🗑️ Удалить аккаунт?")
+            },
+            text = {
+                Column {
+                    Text("Вы уверены, что хотите удалить аккаунт?")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "${accountToDelete?.service} (${accountToDelete?.username})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        accountToDelete?.let { onDeleteAccount(it) }
+                        showDeleteDialog = false
+                        accountToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Удалить")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        accountToDelete = null
+                    }
+                ) {
+                    Text("Отмена")
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    }
+
+    // ========== ДИАЛОГ ИНФОРМАЦИИ ==========
+    if (showInfoDialog && accountInfo != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showInfoDialog = false
+                accountInfo = null
+            },
+            title = {
+                Text("ℹ️ Информация об аккаунте")
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "📱 Сервис: ${accountInfo?.service}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "👤 Логин: ${accountInfo?.username}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "🔑 Секрет: ${accountInfo?.secret?.take(8)}...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showInfoDialog = false
+                        accountInfo = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text("Закрыть")
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 }

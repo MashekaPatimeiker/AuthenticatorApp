@@ -9,6 +9,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -28,6 +29,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +47,9 @@ fun QrScannerScreen(
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
+
+    // 🔥 Флаг для блокировки повторных сканирований
+    val isScanning = remember { AtomicBoolean(false) }
 
     Scaffold(
         topBar = {
@@ -74,7 +79,17 @@ fun QrScannerScreen(
             if (hasPermission) {
                 CameraPreview(
                     onBarcodeDetected = { barcode ->
-                        onQrScanned(barcode)
+                        // 🔥 Блокируем повторные сканирования
+                        if (isScanning.compareAndSet(false, true)) {
+                            try {
+                                onQrScanned(barcode)
+                            } finally {
+                                // Разблокируем после обработки (с задержкой)
+                                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                    isScanning.set(false)
+                                }, 500)
+                            }
+                        }
                     }
                 )
             } else {
@@ -134,7 +149,7 @@ fun QrScannerScreen(
                         .size(250.dp)
                         .align(Alignment.Center)
                         .background(Color.Transparent)
-                        .border(3.dp, Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+                        .border(3.dp, Color.White, shape = RoundedCornerShape(16.dp))
                 )
             }
         }

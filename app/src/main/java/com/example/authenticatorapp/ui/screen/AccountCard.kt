@@ -29,7 +29,7 @@ fun AccountCard(
             containerColor = if (totpResult.secondsRemaining < 5)
                 MaterialTheme.colorScheme.errorContainer
             else
-                MaterialTheme.colorScheme.surfaceVariant
+                MaterialTheme.colorScheme.primaryContainer
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -47,12 +47,12 @@ fun AccountCard(
                 Text(
                     text = account.service,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
                     text = account.username,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 )
             }
 
@@ -81,7 +81,7 @@ fun AccountCard(
                         color = if (totpResult.secondsRemaining < 5)
                             MaterialTheme.colorScheme.error
                         else
-                            MaterialTheme.colorScheme.onSurfaceVariant,
+                            MaterialTheme.colorScheme.onPrimaryContainer,
                         letterSpacing = 2.sp
                     )
                 }
@@ -120,7 +120,7 @@ fun AccountCard(
                         Text(
                             text = "${seconds}s",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
                         )
                     }
                 }

@@ -1,7 +1,8 @@
-package com.example.authenticatorapp.viewmodel
+package com.example.authenticatorapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.authenticatorapp.data.network.ApiService
 import com.example.authenticatorapp.data.repository.AccountRepository
 import com.example.authenticatorapp.domain.models.Account
 import com.example.authenticatorapp.domain.models.TotpGenerator
@@ -11,9 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 
-class MainViewModel(
-    private val repository: AccountRepository
-) : ViewModel() {
+class MainViewModel : ViewModel() {
+
+    private val apiService = ApiService()
+    private val repository = AccountRepository(apiService)
 
     private val _accounts = MutableStateFlow<List<Account>>(emptyList())
     val accounts: StateFlow<List<Account>> = _accounts.asStateFlow()

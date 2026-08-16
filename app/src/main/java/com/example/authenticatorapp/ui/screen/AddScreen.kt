@@ -21,12 +21,21 @@ fun AddScreen(
     var secret by remember { mutableStateOf("") }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("➕ Добавить аккаунт") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            "Назад",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
             )
@@ -44,7 +53,12 @@ fun AddScreen(
                 onValueChange = { service = it },
                 label = { Text("Сервис (например, Google)") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             OutlinedTextField(
@@ -52,7 +66,12 @@ fun AddScreen(
                 onValueChange = { username = it },
                 label = { Text("Логин или email") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             OutlinedTextField(
@@ -63,7 +82,12 @@ fun AddScreen(
                 singleLine = true,
                 supportingText = {
                     Text("Например: JBSWY3DPEHPK3PXP")
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             Button(
@@ -79,7 +103,11 @@ fun AddScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = service.isNotBlank() && secret.isNotBlank()
+                enabled = service.isNotBlank() && secret.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text("Добавить аккаунт")
             }
@@ -87,7 +115,7 @@ fun AddScreen(
             Text(
                 text = "Скоро добавим сканирование QR-кода 📸",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }

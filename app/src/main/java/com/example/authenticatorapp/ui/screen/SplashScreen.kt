@@ -1,4 +1,3 @@
-// SplashScreen.kt
 package com.example.authenticatorapp.ui.screen
 
 import android.annotation.SuppressLint
@@ -26,14 +25,13 @@ fun SplashScreenContent() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF6750A4)),
+            .background(Color(0xFF6A1B9A)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Анимированная иконка
             AnimatedContent(
                 targetState = true,
                 transitionSpec = {

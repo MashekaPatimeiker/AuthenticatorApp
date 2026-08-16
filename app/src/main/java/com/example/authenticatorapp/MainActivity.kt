@@ -3,6 +3,8 @@ package com.example.authenticatorapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,12 +24,8 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-
         var isReady by mutableStateOf(false)
-
-        splashScreen.setKeepOnScreenCondition {
-            !isReady
-        }
+        splashScreen.setKeepOnScreenCondition { !isReady }
 
         lifecycleScope.launch {
             delay(800)
@@ -74,6 +72,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     accounts: List<Account>,
@@ -92,7 +91,8 @@ fun MainScreen(
         bottomBar = {
             NavigationBar(
                 modifier = Modifier.height(64.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 bottomNavItems.forEachIndexed { index, item ->
                     NavigationBarItem(
@@ -101,10 +101,22 @@ fun MainScreen(
                         icon = {
                             Icon(
                                 imageVector = item.icon,
-                                contentDescription = item.title
+                                contentDescription = item.title,
+                                tint = if (selectedTab == index)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
                             )
                         },
-                        label = { Text(item.title) },
+                        label = {
+                            Text(
+                                item.title,
+                                color = if (selectedTab == index)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                            )
+                        },
                         alwaysShowLabel = true
                     )
                 }
@@ -116,17 +128,30 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (selectedTab) {
-                0 -> AccountsScreen(
-                    accounts = accounts,
-                    onAddAccount = { /* Пока ничего */ },
-                    onDeleteAccount = onDeleteAccount
-                )
-                1 -> AddScreen(
-                    onAddAccount = onAddAccount,
-                    onBack = { selectedTab = 0 }
-                )
-                2 -> SettingsScreen()
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    slideInVertically(
+                        initialOffsetY = { if (targetState > initialState) it else -it },
+                        animationSpec = tween(300)
+                    ) togetherWith slideOutVertically(
+                        targetOffsetY = { if (targetState > initialState) -it else it },
+                        animationSpec = tween(300)
+                    )
+                }
+            ) { tabIndex ->
+                when (tabIndex) {
+                    0 -> AccountsScreen(
+                        accounts = accounts,
+                        onAddAccount = { /* Пока ничего */ },
+                        onDeleteAccount = onDeleteAccount
+                    )
+                    1 -> AddScreen(
+                        onAddAccount = onAddAccount,
+                        onBack = { selectedTab = 0 }
+                    )
+                    2 -> SettingsScreen()
+                }
             }
         }
     }

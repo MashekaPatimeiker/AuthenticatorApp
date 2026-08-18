@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Authenticator</string>
+
+    <!-- Navigation -->
+    <string name="nav_accounts">Accounts</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Main screen -->
+    <string name="accounts_title">Accounts</string>
+    <string name="no_accounts">No accounts</string>
+    <string name="no_accounts_hint">Tap + to add</string>
+    <string name="add_account">Add account</string>
+    <string name="delete">Delete</string>
+    <string name="info">Info</string>
+    <string name="copy">Copy</string>
+    <!-- Settings (new) -->
+    <string name="settings_how_to_use">How to use</string>
+    <string name="settings_developer_contacts">Developer contacts</string>
+    <string name="developer_email">Email: support@authenticatorapp.com</string>
+    <string name="developer_telegram">Telegram: @developer_username</string>
+    <string name="how_to_use_title">📖 How to use the app</string>
+
+    <!-- Instructions -->
+    <string name="how_to_step_1">1. Add account</string>
+    <string name="how_to_step_1_desc">Tap the + icon in the top right corner. Choose:\n• Scan QR code from website\n• Enter data manually\n• Paste secret from clipboard</string>
+    <string name="how_to_step_2">2. Get code</string>
+    <string name="how_to_step_2_desc">Code updates every 30 seconds. Progress bar shows remaining time.</string>
+    <string name="how_to_step_3">3. Manage accounts</string>
+    <string name="how_to_step_3_desc">• Swipe left — delete account (with confirmation)\n• Swipe right — view account information</string>
+    <string name="how_to_step_4">4. Settings</string>
+    <string name="how_to_step_4_desc">In settings you can:\n• Enable dark theme\n• Change app language\n• Contact developer</string>
+    <string name="how_to_step_5">5. Security</string>
+    <string name="how_to_step_5_desc">All data is stored locally on your device. No data is transmitted over the internet.</string>
+    <!-- Add screen -->
+    <string name="add_account_title">Add account</string>
+    <string name="service_label">Service (e.g. Google)</string>
+    <string name="username_label">Username or email</string>
+    <string name="secret_label">Secret key</string>
+    <string name="secret_hint">Example: JBSWY3DPEHPK3PXP</string>
+    <string name="invalid_secret">Invalid secret (only A-Z and 2-7)</string>
+    <string name="add_button">Add account</string>
+    <string name="qr_scanner">QR scanner</string>
+    <string name="paste">Paste</string>
+    <string name="generate_secret">Generate secret</string>
+    <string name="or_scan_qr">Or scan QR code from the website 📸</string>
+
+    <!-- QR scanner -->
+    <string name="qr_scanner_title">Scan QR code</string>
+    <string name="camera_permission_needed">Camera access required</string>
+    <string name="camera_permission_hint">Allow camera access to scan QR codes</string>
+    <string name="grant_permission">Grant access</string>
+
+    <!-- Notifications -->
+    <string name="account_added_success">Account added successfully!</string>
+    <string name="error_service_empty">Please enter service name</string>
+    <string name="error_secret_empty">Please enter secret key</string>
+    <string name="error_invalid_secret">Invalid secret (only A-Z and 2-7)</string>
+
+    <!-- Dialogs -->
+    <string name="delete_account_title">Delete account?</string>
+    <string name="delete_account_confirm">Are you sure you want to delete this account?</string>
+    <string name="delete_button">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+
+    <!-- Account info -->
+    <string name="account_info_title">Account information</string>
+    <string name="service">Service</string>
+    <string name="username">Username</string>
+    <string name="secret">Secret</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="dark_theme_on">On</string>
+    <string name="dark_theme_off">Off</string>
+    <string name="language">Language</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_english">English</string>
+    <string name="export_accounts">Export accounts</string>
+    <string name="export_in_development">In development</string>
+    <string name="about_app">About app</string>
+    <string name="app_version">Authenticator v1.0\nMade with Kotlin + Compose</string>
+</resources>

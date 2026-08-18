@@ -3,27 +3,28 @@ package com.example.authenticatorapp.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.authenticatorapp.R
 
 sealed class BottomNavItem(
     val route: String,
-    val title: String,
+    val titleResId: Int,
     val icon: ImageVector
 ) {
     object Accounts : BottomNavItem(
         route = "accounts",
-        title = "Аккаунты",
+        titleResId = R.string.nav_accounts,
         icon = Icons.Default.Lock
     )
 
     object Add : BottomNavItem(
         route = "add",
-        title = "Добавить",
+        titleResId = R.string.nav_add,
         icon = Icons.Default.AddCircle
     )
 
     object Settings : BottomNavItem(
         route = "settings",
-        title = "Настройки",
+        titleResId = R.string.nav_settings,
         icon = Icons.Default.Settings
     )
 }

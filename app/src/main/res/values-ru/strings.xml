@@ -66,22 +66,4 @@
     <string name="export_in_development">В разработке</string>
     <string name="about_app">О приложении</string>
     <string name="app_version">Authenticator v1.0\nСделано на Kotlin + Compose</string>
-    <!-- Настройки -->
-    <string name="settings_how_to_use">Как пользоваться</string>
-    <string name="settings_developer_contacts">Контакты разработчика</string>
-    <string name="developer_email">Email: support@authenticatorapp.com</string>
-    <string name="developer_telegram">Telegram: @developer_username</string>
-    <string name="how_to_use_title">📖 Как пользоваться приложением</string>
-
-    <!-- Инструкция -->
-    <string name="how_to_step_1">1. Добавление аккаунта</string>
-    <string name="how_to_step_1_desc">Нажмите на иконку + в правом верхнем углу. Выберите способ добавления:\n• Отсканируйте QR-код с сайта\n• Введите данные вручную\n• Вставьте секрет из буфера обмена</string>
-    <string name="how_to_step_2">2. Получение кода</string>
-    <string name="how_to_step_2_desc">Код обновляется каждые 30 секунд. Прогресс-бар показывает, сколько осталось до обновления.</string>
-    <string name="how_to_step_3">3. Управление аккаунтами</string>
-    <string name="how_to_step_3_desc">• Свайп влево — удалить аккаунт (с подтверждением)\n• Свайп вправо — посмотреть информацию об аккаунте</string>
-    <string name="how_to_step_4">4. Настройки</string>
-    <string name="how_to_step_4_desc">В настройках можно:\n• Включить тёмную тему\n• Сменить язык приложения\n• Связаться с разработчиком</string>
-    <string name="how_to_step_5">5. Безопасность</string>
-    <string name="how_to_step_5_desc">Все данные хранятся локально на вашем устройстве. Никакие данные не передаются в интернет.</string>
 </resources>

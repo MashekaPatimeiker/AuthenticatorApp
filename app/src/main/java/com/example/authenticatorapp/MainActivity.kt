@@ -1,5 +1,6 @@
 package com.example.authenticatorapp
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -20,9 +23,15 @@ import com.example.authenticatorapp.ui.screen.AddScreen
 import com.example.authenticatorapp.ui.screen.QrScannerScreen
 import com.example.authenticatorapp.ui.screen.SettingsScreen
 import com.example.authenticatorapp.ui.theme.AuthenticatorAppTheme
+import com.example.authenticatorapp.ui.theme.LanguagePreference
+import com.example.authenticatorapp.ui.theme.TabPreference
+import com.example.authenticatorapp.ui.theme.ThemePreference
+import com.example.authenticatorapp.utils.LocaleManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import androidx.compose.ui.Alignment
+import kotlinx.coroutines.runBlocking
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var accountStorage: AccountStorage
@@ -34,6 +43,15 @@ class MainActivity : ComponentActivity() {
 
         accountStorage = AccountStorage(this)
 
+        val languageCode = runBlocking {
+            LanguagePreference.getLanguage(this@MainActivity).first()
+        }
+        val savedTab = runBlocking {
+            TabPreference.getTab(this@MainActivity)
+        }
+
+        LocaleManager.applyLanguage(this, languageCode)
+
         lifecycleScope.launch {
             delay(500)
             isReady = true
@@ -41,24 +59,61 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+            val currentLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            resources.configuration.locales[0]?.language ?: "ru"
+        } else {
+            resources.configuration.locale.language ?: "ru"
+        }
+
         setContent {
-            AuthenticatorAppTheme {
+            val themeFlow = ThemePreference.getTheme(this).collectAsState(initial = false)
+            val isDarkTheme by remember { themeFlow }
+
+            AuthenticatorAppTheme(
+                darkTheme = isDarkTheme
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AuthenticatorApp()
+                    AuthenticatorApp(
+                        isDarkTheme = isDarkTheme,
+                        onThemeToggle = { isDark ->
+                            lifecycleScope.launch {
+                                ThemePreference.saveTheme(this@MainActivity, isDark)
+                            }
+                        },
+                        onLanguageChange = { newLanguage ->
+                            lifecycleScope.launch {
+                                LanguagePreference.saveLanguage(this@MainActivity, newLanguage)
+                                recreate()
+                            }
+                        },
+                        initialTab = savedTab,
+                        onTabChanged = { tabIndex ->
+                            lifecycleScope.launch {
+                                TabPreference.saveTab(this@MainActivity, tabIndex)
+                            }
+                        },
+                        currentLanguage = currentLanguage
+                    )
                 }
             }
         }
     }
 
     @Composable
-    fun AuthenticatorApp() {
+    fun AuthenticatorApp(
+        isDarkTheme: Boolean,
+        onThemeToggle: (Boolean) -> Unit,
+        onLanguageChange: (String) -> Unit,
+        initialTab: Int,
+        onTabChanged: (Int) -> Unit,
+        currentLanguage: String
+    ) {
         var accounts by remember { mutableStateOf<List<Account>>(emptyList()) }
         var isLoading by remember { mutableStateOf(true) }
 
-        // Загружаем аккаунты из DataStore
         LaunchedEffect(Unit) {
             accountStorage.getAccounts().collect { loadedAccounts ->
                 accounts = loadedAccounts
@@ -96,7 +151,13 @@ class MainActivity : ComponentActivity() {
             MainScreen(
                 accounts = accounts,
                 onAddAccount = { addAccount(it) },
-                onDeleteAccount = { deleteAccount(it) }
+                onDeleteAccount = { deleteAccount(it) },
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle,
+                onLanguageChange = onLanguageChange,
+                initialTab = initialTab,
+                onTabChanged = onTabChanged,
+                currentLanguage = currentLanguage
             )
         }
     }
@@ -107,9 +168,15 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     accounts: List<Account>,
     onAddAccount: (Account) -> Unit,
-    onDeleteAccount: (Account) -> Unit
+    onDeleteAccount: (Account) -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: (Boolean) -> Unit,
+    onLanguageChange: (String) -> Unit,
+    initialTab: Int,
+    onTabChanged: (Int) -> Unit,
+    currentLanguage: String
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableStateOf(initialTab) }
     var showQrScanner by remember { mutableStateOf(false) }
 
     val bottomNavItems = listOf(
@@ -117,6 +184,10 @@ fun MainScreen(
         BottomNavItem.Add,
         BottomNavItem.Settings
     )
+
+    LaunchedEffect(selectedTab) {
+        onTabChanged(selectedTab)
+    }
 
     if (showQrScanner) {
         QrScannerScreen(
@@ -141,11 +212,14 @@ fun MainScreen(
                     bottomNavItems.forEachIndexed { index, item ->
                         NavigationBarItem(
                             selected = selectedTab == index,
-                            onClick = { selectedTab = index },
+                            onClick = {
+                                selectedTab = index
+                                onTabChanged(index)
+                            },
                             icon = {
                                 Icon(
                                     imageVector = item.icon,
-                                    contentDescription = item.title,
+                                    contentDescription = stringResource(item.titleResId),
                                     tint = if (selectedTab == index)
                                         MaterialTheme.colorScheme.onPrimary
                                     else
@@ -154,7 +228,7 @@ fun MainScreen(
                             },
                             label = {
                                 Text(
-                                    item.title,
+                                    text = stringResource(item.titleResId),
                                     color = if (selectedTab == index)
                                         MaterialTheme.colorScheme.onPrimary
                                     else
@@ -195,7 +269,12 @@ fun MainScreen(
                             onBack = { selectedTab = 0 },
                             onOpenQrScanner = { showQrScanner = true }
                         )
-                        2 -> SettingsScreen()
+                        2 -> SettingsScreen(
+                            isDarkTheme = isDarkTheme,
+                            onThemeToggle = onThemeToggle,
+                            onLanguageChange = onLanguageChange,
+                            currentLanguage = currentLanguage
+                        )
                     }
                 }
             }

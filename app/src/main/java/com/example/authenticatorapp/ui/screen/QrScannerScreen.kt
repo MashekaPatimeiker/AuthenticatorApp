@@ -19,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.authenticatorapp.R
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -48,13 +50,12 @@ fun QrScannerScreen(
         )
     }
 
-    // 🔥 Флаг для блокировки повторных сканирований
     val isScanning = remember { AtomicBoolean(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("📸 Сканировать QR-код") },
+                title = { Text(stringResource(R.string.qr_scanner_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -63,7 +64,7 @@ fun QrScannerScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            "Назад",
+                            stringResource(R.string.cancel),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -79,12 +80,10 @@ fun QrScannerScreen(
             if (hasPermission) {
                 CameraPreview(
                     onBarcodeDetected = { barcode ->
-                        // 🔥 Блокируем повторные сканирования
                         if (isScanning.compareAndSet(false, true)) {
                             try {
                                 onQrScanned(barcode)
                             } finally {
-                                // Разблокируем после обработки (с задержкой)
                                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                                     isScanning.set(false)
                                 }, 500)
@@ -93,7 +92,6 @@ fun QrScannerScreen(
                     }
                 )
             } else {
-                // Запрос разрешения
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -107,12 +105,12 @@ fun QrScannerScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Нет доступа к камере",
+                        text = stringResource(R.string.camera_permission_needed),
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Разрешите доступ к камере для сканирования QR-кодов",
+                        text = stringResource(R.string.camera_permission_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -133,12 +131,11 @@ fun QrScannerScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Предоставить доступ")
+                        Text(stringResource(R.string.grant_permission))
                     }
                 }
             }
 
-            // Overlay с рамкой для сканирования
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -214,6 +211,7 @@ fun CameraPreview(
     }
 }
 
+@androidx.annotation.OptIn(ExperimentalGetImage::class)
 private fun processImage(
     imageProxy: ImageProxy,
     onBarcodeDetected: (String) -> Unit

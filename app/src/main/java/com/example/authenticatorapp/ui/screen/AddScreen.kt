@@ -5,14 +5,18 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.authenticatorapp.R
 import com.example.authenticatorapp.domain.models.Account
 import com.example.authenticatorapp.domain.totp.SecretGenerator
 import kotlinx.coroutines.delay
@@ -28,7 +32,6 @@ fun AddScreen(
     var username by remember { mutableStateOf("") }
     var secret by remember { mutableStateOf("") }
 
-    // Состояния для уведомлений
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -36,7 +39,6 @@ fun AddScreen(
     val context = LocalContext.current
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
-    // Скрываем уведомления через 3 секунды
     LaunchedEffect(showSuccess) {
         if (showSuccess) {
             delay(3000)
@@ -54,7 +56,7 @@ fun AddScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("➕ Добавить аккаунт") },
+                title = { Text(stringResource(R.string.add_account_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -63,7 +65,7 @@ fun AddScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            "Назад",
+                            stringResource(R.string.cancel),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -78,7 +80,6 @@ fun AddScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Кнопки быстрого добавления
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -90,9 +91,9 @@ fun AddScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Icon(Icons.Default.QrCodeScanner, "QR-сканер")
+                    Icon(Icons.Default.QrCodeScanner, stringResource(R.string.qr_scanner))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("QR-сканер", fontSize = 12.sp)
+                    Text(stringResource(R.string.qr_scanner), fontSize = 12.sp)
                 }
 
                 Button(
@@ -108,13 +109,12 @@ fun AddScreen(
                         containerColor = MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Icon(Icons.Default.ContentPaste, "Вставить")
+                    Icon(Icons.Default.ContentPaste, stringResource(R.string.paste))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Вставить", fontSize = 12.sp)
+                    Text(stringResource(R.string.paste), fontSize = 12.sp)
                 }
             }
 
-            // Кнопка "Сгенерировать секрет"
             Button(
                 onClick = {
                     secret = SecretGenerator.generateSecret()
@@ -124,9 +124,9 @@ fun AddScreen(
                     containerColor = MaterialTheme.colorScheme.tertiary
                 )
             ) {
-                Icon(Icons.Default.Refresh, "Обновить")
+                Icon(Icons.Default.Refresh, stringResource(R.string.generate_secret))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Сгенерировать секрет")
+                Text(stringResource(R.string.generate_secret))
             }
 
             Divider(
@@ -134,46 +134,35 @@ fun AddScreen(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // Поля ввода
             OutlinedTextField(
                 value = service,
                 onValueChange = { service = it },
-                label = { Text("Сервис (например, Google)") },
+                label = { Text(stringResource(R.string.service_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary
-                ),
                 isError = service.isBlank() && showError
             )
 
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Логин или email") },
+                label = { Text(stringResource(R.string.username_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary
-                )
+                singleLine = true
             )
 
             OutlinedTextField(
                 value = secret,
                 onValueChange = { secret = it.uppercase() },
-                label = { Text("Секретный ключ") },
+                label = { Text(stringResource(R.string.secret_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 supportingText = {
                     Text(
                         if (secret.isNotBlank() && !SecretGenerator.isValidSecret(secret)) {
-                            "❌ Некорректный секрет (только A-Z и 2-7)"
+                            stringResource(R.string.invalid_secret)
                         } else {
-                            "Например: JBSWY3DPEHPK3PXP"
+                            stringResource(R.string.secret_hint)
                         },
                         color = if (secret.isNotBlank() && !SecretGenerator.isValidSecret(secret)) {
                             MaterialTheme.colorScheme.error
@@ -182,39 +171,29 @@ fun AddScreen(
                         }
                     )
                 },
-                isError = secret.isNotBlank() && !SecretGenerator.isValidSecret(secret),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    errorBorderColor = MaterialTheme.colorScheme.error,
-                    errorLabelColor = MaterialTheme.colorScheme.error
-                )
+                isError = secret.isNotBlank() && !SecretGenerator.isValidSecret(secret)
             )
 
-            // Кнопка "Добавить"
             Button(
                 onClick = {
-                    // Валидация
                     when {
                         service.isBlank() -> {
                             showError = true
-                            errorMessage = "Введите название сервиса"
+                            errorMessage = context.getString(R.string.error_service_empty)
                             return@Button
                         }
                         secret.isBlank() -> {
                             showError = true
-                            errorMessage = "Введите секретный ключ"
+                            errorMessage = context.getString(R.string.error_secret_empty)
                             return@Button
                         }
                         !SecretGenerator.isValidSecret(secret) -> {
                             showError = true
-                            errorMessage = "Некорректный секрет (только A-Z и 2-7)"
+                            errorMessage = context.getString(R.string.error_invalid_secret)
                             return@Button
                         }
                     }
 
-                    // Всё ок — добавляем
                     onAddAccount(
                         Account(
                             service = service,
@@ -223,10 +202,7 @@ fun AddScreen(
                         )
                     )
 
-                    // Показываем сообщение об успехе
                     showSuccess = true
-
-                    // Очищаем поля
                     service = ""
                     username = ""
                     secret = ""
@@ -238,10 +214,9 @@ fun AddScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text("Добавить аккаунт")
+                Text(stringResource(R.string.add_button))
             }
 
-            // Уведомления
             if (showSuccess) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -256,7 +231,7 @@ fun AddScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "✅ Аккаунт успешно добавлен!",
+                            text = stringResource(R.string.account_added_success),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -285,7 +260,7 @@ fun AddScreen(
             }
 
             Text(
-                text = "Или отсканируй QR-код с сайта 📸",
+                text = stringResource(R.string.or_scan_qr),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.CenterHorizontally)

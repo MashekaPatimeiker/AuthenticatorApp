@@ -6,13 +6,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.authenticatorapp.R
 import com.example.authenticatorapp.domain.models.Account
 import com.example.authenticatorapp.domain.totp.TotpGenerator
 import kotlinx.coroutines.delay
@@ -27,11 +31,9 @@ fun AccountsScreen(
 ) {
     var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    // Состояние для диалога удаления
     var showDeleteDialog by remember { mutableStateOf(false) }
     var accountToDelete by remember { mutableStateOf<Account?>(null) }
 
-    // Состояние для диалога информации
     var showInfoDialog by remember { mutableStateOf(false) }
     var accountInfo by remember { mutableStateOf<Account?>(null) }
 
@@ -46,14 +48,14 @@ fun AccountsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("🔐 Аккаунты") },
+                title = { Text(stringResource(R.string.accounts_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
                     IconButton(onClick = onAddAccount) {
-                        Icon(Icons.Default.Add, "Добавить аккаунт")
+                        Icon(Icons.Default.Add, stringResource(R.string.add_account))
                     }
                 }
             )
@@ -73,12 +75,12 @@ fun AccountsScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Нет аккаунтов",
+                    text = stringResource(R.string.no_accounts),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Нажмите на +, чтобы добавить",
+                    text = stringResource(R.string.no_accounts_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -105,12 +107,10 @@ fun AccountsScreen(
                                 detectHorizontalDragGestures(
                                     onDragEnd = {
                                         when {
-                                            // Свайп влево (удаление)
                                             offsetX < -maxSwipeDistance / 2 -> {
                                                 accountToDelete = account
                                                 showDeleteDialog = true
                                             }
-                                            // Свайп вправо (информация)
                                             offsetX > maxSwipeDistance / 2 -> {
                                                 accountInfo = account
                                                 showInfoDialog = true
@@ -125,7 +125,6 @@ fun AccountsScreen(
                                 )
                             }
                     ) {
-                        // 👈 Левый фон (удаление) — виден при свайпе влево
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -140,18 +139,17 @@ fun AccountsScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    "Удалить",
+                                    stringResource(R.string.delete),
                                     tint = MaterialTheme.colorScheme.onError
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    "Удалить",
+                                    stringResource(R.string.delete),
                                     color = MaterialTheme.colorScheme.onError
                                 )
                             }
                         }
 
-                        // 👉 Правый фон (информация) — виден при свайпе вправо
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -165,19 +163,18 @@ fun AccountsScreen(
                                 horizontalArrangement = Arrangement.End
                             ) {
                                 Text(
-                                    "Информация",
+                                    stringResource(R.string.info),
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
                                     Icons.Default.Info,
-                                    "Информация",
+                                    stringResource(R.string.info),
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
                         }
 
-                        // Карточка со смещением
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -203,22 +200,43 @@ fun AccountsScreen(
         }
     }
 
-    // ========== ДИАЛОГ УДАЛЕНИЯ ==========
-    if (showDeleteDialog && accountToDelete != null) {
+    DeleteAccountDialog(
+        showDialog = showDeleteDialog,
+        account = accountToDelete,
+        onConfirm = { accountToDelete?.let { onDeleteAccount(it) } },
+        onDismiss = {
+            showDeleteDialog = false
+            accountToDelete = null
+        }
+    )
+
+    AccountInfoDialog(
+        showDialog = showInfoDialog,
+        account = accountInfo,
+        onDismiss = {
+            showInfoDialog = false
+            accountInfo = null
+        }
+    )
+}
+
+@Composable
+fun DeleteAccountDialog(
+    showDialog: Boolean,
+    account: Account?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (showDialog && account != null) {
         AlertDialog(
-            onDismissRequest = {
-                showDeleteDialog = false
-                accountToDelete = null
-            },
-            title = {
-                Text("🗑️ Удалить аккаунт?")
-            },
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.delete_account_title)) },
             text = {
                 Column {
-                    Text("Вы уверены, что хотите удалить аккаунт?")
+                    Text(stringResource(R.string.delete_account_confirm))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "${accountToDelete?.service} (${accountToDelete?.username})",
+                        text = "${account.service} (${account.username})",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -227,55 +245,50 @@ fun AccountsScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        accountToDelete?.let { onDeleteAccount(it) }
-                        showDeleteDialog = false
-                        accountToDelete = null
+                        onConfirm()
+                        onDismiss()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Удалить")
+                    Text(stringResource(R.string.delete_button))
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        accountToDelete = null
-                    }
-                ) {
-                    Text("Отмена")
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel))
                 }
             },
             containerColor = MaterialTheme.colorScheme.surface
         )
     }
+}
 
-    // ========== ДИАЛОГ ИНФОРМАЦИИ ==========
-    if (showInfoDialog && accountInfo != null) {
+@Composable
+fun AccountInfoDialog(
+    showDialog: Boolean,
+    account: Account?,
+    onDismiss: () -> Unit
+) {
+    if (showDialog && account != null) {
         AlertDialog(
-            onDismissRequest = {
-                showInfoDialog = false
-                accountInfo = null
-            },
-            title = {
-                Text("ℹ️ Информация об аккаунте")
-            },
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.account_info_title)) },
             text = {
                 Column {
                     Text(
-                        text = "📱 Сервис: ${accountInfo?.service}",
+                        text = "📱 ${stringResource(R.string.service)}: ${account.service}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "👤 Логин: ${accountInfo?.username}",
+                        text = "👤 ${stringResource(R.string.username)}: ${account.username}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "🔑 Секрет: ${accountInfo?.secret?.take(8)}...",
+                        text = "🔑 ${stringResource(R.string.secret)}: ${account.secret.take(8)}...",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -283,15 +296,12 @@ fun AccountsScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = {
-                        showInfoDialog = false
-                        accountInfo = null
-                    },
+                    onClick = onDismiss,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text("Закрыть")
+                    Text(stringResource(R.string.close))
                 }
             },
             containerColor = MaterialTheme.colorScheme.surface

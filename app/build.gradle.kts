@@ -32,8 +32,31 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
-}
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/authenticator.jks")
+            storePassword = project.properties["KEYSTORE_PASSWORD"] as? String ?: System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = project.properties["KEY_ALIAS"] as? String ?: System.getenv("KEY_ALIAS")
+            keyPassword = project.properties["KEY_PASSWORD"] as? String ?: System.getenv("KEY_PASSWORD")
+        }
+    }
 
+    buildTypes {
+        debug {
+            // 🔥 ЯВНО ОТКЛЮЧАЕМ ПОДПИСЬ ДЛЯ DEBUG
+            signingConfig = null
+            isDebuggable = true
+        }
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+}
 dependencies {
     // Core
     implementation("androidx.core:core-ktx:1.12.0")

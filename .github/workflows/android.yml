@@ -34,13 +34,14 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --no-daemon
 
-      - name: Run Android tests
-        run: ./gradlew connectedAndroidTest
+      # ⚠️ Android-тесты временно отключены (требуют эмулятор)
+      # - name: Run Android tests
+      #   run: ./gradlew connectedAndroidTest --no-daemon
 
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v3

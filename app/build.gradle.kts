@@ -35,9 +35,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("keystore/authenticator.jks")
-            storePassword = project.properties["KEYSTORE_PASSWORD"] as? String ?: System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = project.properties["KEY_ALIAS"] as? String ?: System.getenv("KEY_ALIAS")
-            keyPassword = project.properties["KEY_PASSWORD"] as? String ?: System.getenv("KEY_PASSWORD")
+            storePassword = project.properties["KEYSTORE_PASSWORD"] as? String ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = project.properties["KEY_ALIAS"] as? String ?: System.getenv("KEY_ALIAS") ?: "authenticator"
+            keyPassword = project.properties["KEY_PASSWORD"] as? String ?: System.getenv("KEY_PASSWORD") ?: ""
         }
     }
 
